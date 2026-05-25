@@ -41,6 +41,28 @@ export function roundReducer(state: RoundState, action: RoundAction): RoundState
       };
     }
 
+    case "round/abortAndRestart": {
+      const timerSeconds = action.timerSeconds ?? state.settings.defaultTimerSeconds;
+      return {
+        ...state,
+        currentRound: createRound({ timerSeconds, now: action.now }),
+      };
+    }
+
+    case "round/goFinal":
+      return updateCurrentRound(state, (round) => {
+        if (round.phase !== "timedInvestigation") {
+          return round;
+        }
+
+        return {
+          ...settleRunningTimer(round, action.now),
+          phase: "finalGuide",
+          timerStatus: "finished",
+          timerStartedAt: null,
+        };
+      });
+
     case "round/chooseCriterion":
       return updateCurrentRound(state, (round) => {
         const selected = round.criteriaCandidates.find(

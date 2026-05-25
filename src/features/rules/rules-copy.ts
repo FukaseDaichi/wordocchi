@@ -1,18 +1,54 @@
-export const ruleSections = [
+import {
+  ClockIcon,
+  EyeIcon,
+  LockKeyholeIcon,
+  MessagesSquareIcon,
+  SparklesIcon,
+  type LucideIcon,
+} from "lucide-react";
+
+export type RuleStep = {
+  readonly id: string;
+  readonly heading: string;
+  readonly body: string;
+  readonly icon: LucideIcon;
+  readonly accent: "sun" | "rose" | "sky" | "leaf";
+};
+
+export const ruleSteps: readonly RuleStep[] = [
   {
-    title: "ワードッチとは",
-    body: "親だけが知っているヒミツのキジュンに近いワードを、子が会話しながら探っていく遊びです。正解を当てるより、親の判定から傾向をつかむことを楽しみます。",
+    id: "what",
+    heading: "ワードッチってどんなあそび？",
+    body: "親だけが知っているヒミツのキジュンに、3つのワードのうちどれが一番近いかを子どもたちが話し合いながら探していく会話あそびです。",
+    icon: SparklesIcon,
+    accent: "sun",
   },
   {
-    title: "親の役割",
-    body: "親は2つの候補からキジュンを1つ選び、ラウンド終了まで子に見せません。調査中は、出てきたワードと暫定チャンピオンを比べ、キジュンに近いほうを選びます。",
+    id: "parent",
+    heading: "親のやくわり",
+    body: "親はキジュンを選び、3つのワードを声に出して子に伝えます。話し合いを聞きながらタイマーで進行をサポートします。",
+    icon: MessagesSquareIcon,
+    accent: "sky",
   },
   {
-    title: "進行の流れ",
-    body: "キジュンを選ぶ、3つのワードを伝える、タイマー中に質問や相談をしてもらう、最後のワードを考えてもらう、親が優勝ワードを選んでキジュンを公開する、という順番で進めます。",
+    id: "pick",
+    heading: "キジュンを2つから選ぼう",
+    body: "2つの候補から今回のヒミツのキジュンを1つ選びます。選ばなかったほうは伏せたままで、子には見せません。",
+    icon: LockKeyholeIcon,
+    accent: "rose",
   },
   {
-    title: "子へのコツ",
-    body: "3つのワードは子に見せても大丈夫です。ヒミツのキジュンだけは親専用として隠し、迷った判定は親の主観でテンポよく決めてください。",
+    id: "timer",
+    heading: "タイマーで話し合おう",
+    body: "3〜10分のあいだに、子どもたちが3つのワードから1つを話し合いで選びます。途中でやめたいときは「終了」を押すとすぐに決選フェイズへ。",
+    icon: ClockIcon,
+    accent: "leaf",
   },
-] as const;
+  {
+    id: "reveal",
+    heading: "キジュンを公開して感想戦",
+    body: "タイマーが終わったら、親がヒミツのキジュンを公開します。みんなでどこで気づいたかを話して、感想戦を楽しみましょう。",
+    icon: EyeIcon,
+    accent: "sun",
+  },
+];

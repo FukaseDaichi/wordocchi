@@ -46,8 +46,10 @@ export type RoundAction =
   | { readonly type: "round/start"; readonly timerSeconds?: number; readonly now?: string }
   | { readonly type: "round/chooseCriterion"; readonly criterionId: string }
   | { readonly type: "round/startInvestigation"; readonly now: string }
+  | { readonly type: "round/goFinal"; readonly now: string }
   | { readonly type: "round/reveal"; readonly now: string }
   | { readonly type: "round/finish"; readonly now: string }
+  | { readonly type: "round/abortAndRestart"; readonly timerSeconds?: number; readonly now: string }
   | { readonly type: "timer/start"; readonly now: string }
   | { readonly type: "timer/pause"; readonly now: string }
   | { readonly type: "timer/resume"; readonly now: string }
