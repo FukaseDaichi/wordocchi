@@ -5,7 +5,7 @@
 
 ## 目的
 
-Next.js App Router、静的エクスポート、PWA、GitHub Pages、Tailwind CSS のみ、という前提で、実装時に迷いにくいフォルダ構成を定義する。  
+Next.js App Router、静的エクスポート、PWA、GitHub Pages、Tailwind CSS を基本とする前提で、実装時に迷いにくいフォルダ構成を定義する。  
 このプロジェクトは小規模な親向けツールなので、過度に階層を増やさず、単一画面、ゲーム進行、PWA、UI 部品の責務を分ける。
 
 ## 参照元
@@ -23,9 +23,10 @@ Next.js App Router、静的エクスポート、PWA、GitHub Pages、Tailwind CS
 - ゲーム進行、タイマー、保存処理などの実装は `src/features/` に置く。
 - 汎用 UI は `src/components/` に置く。
 - 汎用関数、定数、環境差分吸収は `src/lib/` に置く。
-- 公式カード全文は同梱しない。独自サンプルやユーザー入力用のデータだけを `src/data/` に置く。
+- 公式カード全文は同梱しない。初期実装では独自サンプルデータだけを `src/data/` に置く。
 - PWA アイコンや Service Worker など、ブラウザから直接参照される静的ファイルは root の `public/` に置く。
-- Tailwind CSS 以外の CSS 手法は使わない。グローバル CSS は `src/app/globals.css` のみにする。
+- 画像素材は原則として Codex の `imagegen` skill で生成した PNG を `public/illustrations/` に置く。初期実装では画像なしでも成立する構成にする。
+- Tailwind CSS を基本にする。ポイント CSS は `src/app/globals.css` に必要最小限だけ置き、CSS Modules、Sass、CSS-in-JS は使わない。
 
 ## 推奨フォルダ構成
 
@@ -35,6 +36,8 @@ wordocchi/
     workflows/
       pages.yml
   docs/
+    DESIGN.md
+    implementation-rules.md
     nextjs-folder-structure-design.md
     system-requirements-design.md
     wordocchi-rule-definition.md
@@ -43,8 +46,10 @@ wordocchi/
       icon-192.png
       icon-512.png
       maskable-512.png
-    sounds/
-      timer-end.mp3
+    illustrations/
+      dog-detective.png
+      cat-notekeeper.png
+      lock-secret.png
     sw.js
   src/
     app/
@@ -92,7 +97,6 @@ wordocchi/
       base-path.ts
       constants.ts
       storage.ts
-      sound.ts
     types/
       app.ts
   .gitignore
@@ -111,7 +115,7 @@ wordocchi/
 
 GitHub Pages への静的デプロイ workflow を置く。
 
-- `pages.yml`: install、lint、test、build、Pages artifact upload、deploy を行う。
+- `pages.yml`: `npm ci`、`npm run lint`、`npm test`、`npm run build`、Pages artifact upload、deploy を行う。
 
 ### `docs`
 
@@ -122,7 +126,7 @@ GitHub Pages への静的デプロイ workflow を置く。
 ブラウザから直接配信される静的ファイルを置く。
 
 - `icons/`: PWA 用アイコン。
-- `sounds/`: タイマー通知音。音通知を初期実装しない場合は後回しでよい。
+- `illustrations/`: `imagegen` skill で後から生成する PNG イラスト。初期実装では空でもよい。
 - `sw.js`: Service Worker。GitHub Pages の `basePath` を考慮してキャッシュ対象を定義する。
 
 注意: `public` は root に置く。`src/public` にはしない。
@@ -162,7 +166,7 @@ Next.js App Router のルート定義を置く。ただしゲーム本体は `/`
 
 - `round/`: ラウンド進行、キジュン選択、3ワード提示、公開処理。
 - `rules/`: ルール説明の文言と表示。
-- `timer/`: カウントダウン、通知、一時停止・再開。
+- `timer/`: カウントダウン、視覚通知、一時停止・再開。
 
 ルール:
 
@@ -172,7 +176,7 @@ Next.js App Router のルート定義を置く。ただしゲーム本体は `/`
 
 ### `src/data`
 
-独自サンプルデータを置く。
+独自サンプルデータを置く。初期実装ではこのデータだけを使い、手入力モードは作らない。
 
 - `sample-prompts.ts`: 独自作成のキジュン候補とワード候補。
 
@@ -188,8 +192,6 @@ Next.js App Router のルート定義を置く。ただしゲーム本体は `/`
 - `base-path.ts`: GitHub Pages の `basePath` を扱う。
 - `constants.ts`: アプリ名、既定タイマー秒数、ストレージキー。
 - `storage.ts`: `localStorage` の読み書き共通処理。
-- `sound.ts`: 通知音再生の共通処理。
-
 ### `src/types`
 
 複数 feature で共有する型を置く。feature 内だけで使う型は、各 feature の `*-types.ts` に置く。
@@ -201,7 +203,7 @@ Next.js App Router のルート定義を置く。ただしゲーム本体は `/`
 - ルール説明、設定、キジュン確認は URL を分けず、モーダル状態で管理する。
 - タイマーの時間計算は `features/timer/` に集約する。
 - `localStorage` の直接アクセスは `round-storage.ts` または `lib/storage.ts` に閉じ込める。
-- Client Component は必要な箇所だけにする。`useEffect`、`localStorage`、`navigator.serviceWorker`、音再生を使うコンポーネントは Client Component にする。
+- Client Component は必要な箇所だけにする。`useEffect`、`localStorage`、`navigator.serviceWorker` を使うコンポーネントは Client Component にする。
 - Server Actions、API Routes、Middleware は静的エクスポート前提のため作らない。
 
 ## import 方針
@@ -302,6 +304,7 @@ e2e/
 ```text
 public/
   icons/
+  illustrations/
   sw.js
 src/
   app/
@@ -333,6 +336,7 @@ src/
 - `src/app/api/` は作らない。
 - `middleware.ts` / `proxy.ts` は作らない。
 - CSS Modules、Sass、CSS-in-JS 用フォルダは作らない。
+- 初期実装では `public/sounds/` や音再生 helper は作らない。
 - 子プレイヤーごとの状態管理フォルダは作らない。
 - 公式カード全文を持つ `cards/official.ts` のようなファイルは作らない。
 
@@ -348,3 +352,4 @@ src/
 - PWA の登録や manifest 周辺なら `src/components/pwa/` または `src/app/manifest.ts`
 - localStorage や basePath など横断処理なら `src/lib/`
 - 公式由来でないサンプルデータなら `src/data/`
+- 生成 PNG イラストなら `public/illustrations/`

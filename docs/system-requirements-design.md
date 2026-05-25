@@ -1,7 +1,7 @@
 # ワードッチ Web ツール システム要件・設計書
 
 最終更新日: 2026-05-25  
-対象: Next.js 静的サイト / PWA / GitHub Pages デプロイ / Tailwind CSS のみ
+対象: Next.js 静的サイト / PWA / GitHub Pages デプロイ / Tailwind CSS
 
 ## 目的
 
@@ -26,7 +26,7 @@
 - GitHub Pages をプライベートリポジトリで使うには、GitHub Pro、Team、Enterprise 系プランが必要になる可能性がある。無料プランで確実に使うなら公開リポジトリを検討する。
 - サーバー、DB、認証、リアルタイム通信は初期スコープに含めない。
 - 子プレイヤーはシステムを操作しない。質問や回答は口頭で自由に行う。
-- 公式カードの全ワード・全キジュンはリポジトリに同梱しない。権利者の許諾がない限り、独自サンプルまたはユーザー入力で扱う。
+- 公式カードの全ワード・全キジュンはリポジトリに同梱しない。初期実装では独自サンプルデータのみを扱う。
 
 ## システムの役割
 
@@ -52,7 +52,8 @@
 - フレームワーク: Next.js App Router
 - 言語: TypeScript
 - UI: React
-- スタイリング: Tailwind CSS のユーティリティクラスのみ
+- パッケージマネージャー: npm
+- スタイリング: Tailwind CSS のユーティリティクラスを基本にし、必要な箇所だけ CSS で補う
 - PWA: Web App Manifest + Service Worker
 - 永続化: `localStorage`
 - デプロイ: GitHub Actions で `next build` し、`out` を GitHub Pages に公開
@@ -108,9 +109,10 @@ export default nextConfig;
 
 ## Tailwind CSS 要件
 
-- Tailwind CSS を導入し、グローバル CSS には Tailwind の import だけを置く。
+- Tailwind CSS を導入し、グローバル CSS には Tailwind の import と、必要最小限の base/utility 補助だけを置く。
 - CSS Modules、Sass、CSS-in-JS、Bootstrap、UI コンポーネントライブラリは使用しない。
 - 共通見た目は React コンポーネントと Tailwind クラスで表現する。
+- 擬似要素、safe area、細かな背景表現など、Tailwind だけでは読みづらい箇所はポイント CSS を使ってよい。
 - UI は親が片手で操作できる大きめのボタン、読みやすい文字サイズ、明確なフェイズ表示を優先する。
 
 ## 機能要件
@@ -147,7 +149,7 @@ export default nextConfig;
 - タイマーは開始、一時停止、再開、リセットができる。
 - 残り時間を大きく表示する。
 - 残り1分、残り30秒、終了時に視覚的な通知を出す。
-- 音による通知は設定でオン/オフできる。
+- 音通知は初期実装に含めない。
 - タイマー終了時に「決選フェイズへ進みましょう」と表示する。
 
 ### 決選案内
@@ -221,9 +223,7 @@ idle -> setup -> secretSelection -> wordPrompt -> timedInvestigation -> finalGui
 
 ### Settings
 
-- `soundEnabled`: boolean
 - `defaultTimerSeconds`: number
-- `dataMode`: `"manual" | "sample"`
 - `hasSeenRules`: boolean
 
 ### UIState
@@ -242,10 +242,10 @@ idle -> setup -> secretSelection -> wordPrompt -> timedInvestigation -> finalGui
 
 想定ワークフロー:
 
-1. `pnpm install`
-2. `pnpm lint`
-3. `pnpm test`
-4. `pnpm build`
+1. `npm ci`
+2. `npm run lint`
+3. `npm test`
+4. `npm run build`
 5. `out` ディレクトリを Pages artifact としてアップロード
 6. GitHub Pages にデプロイ
 
@@ -272,10 +272,18 @@ idle -> setup -> secretSelection -> wordPrompt -> timedInvestigation -> finalGui
 - 子プレイヤーをシステム上で管理しない。
 - タイマー終了後に決選フェイズへ進む案内が表示される。
 - 公式カード全文をリポジトリに含めずに遊べる。
+- 初期実装は独自サンプルデータのみで遊べる。
 
 ## 決定事項
 
 - GitHub リポジトリを公開にする
-- 初期バージョンで独自サンプルのキジュンとワードをいくつ用意する。
-- 3ワード提示を完全ランダムにする。
-- 音通知を初期実装に含めない。ß
+- パッケージマネージャーは npm を使う。
+- 初期データは独自サンプルのみで始める。
+- 3ワード提示は完全ランダムにする。
+- 画像生成は初期実装後に行う。
+- 音通知は初期実装に含めない。
+
+## 未決定事項
+
+- 初期バージョンで独自サンプルのキジュンとワードを何件用意するか。
+- `imagegen` skill で作成する画像の優先順位と枚数。

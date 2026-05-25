@@ -12,11 +12,12 @@
 - UI は日本語、モバイルファースト、親が片手で操作しやすいことを優先する。
 - スコープは、ルール案内、ヒミツのキジュン選択、3ワード提示、タイマー、フェイズ案内、キジュン公開に絞る。
 - `docs/` を意図的に変更しない限り、子プレイヤー管理、スコア管理、部屋作成、認証、サーバー、DB、リアルタイム同期は作らない。
-- 公式カード本文、公式ワード一覧、公式キジュン一覧をリポジトリに含めない。独自サンプルデータまたはユーザー入力だけを扱う。
+- 公式カード本文、公式ワード一覧、公式キジュン一覧をリポジトリに含めない。初期実装では独自サンプルデータだけを扱う。
 
 ## 技術方針
 
-- Next.js App Router、TypeScript、React、Tailwind CSS のユーティリティのみ、静的エクスポート、PWA、GitHub Pages デプロイを前提にする。
+- Next.js App Router、TypeScript、React、Tailwind CSS を基本とするスタイリング、静的エクスポート、PWA、GitHub Pages デプロイを前提にする。
+- パッケージマネージャーは npm を使う。
 - 画面は `/` の単一ルートに保つ。フェイズ切り替え、ルール、設定、親専用のキジュン表示は React state、reducer、モーダルで扱う。
 - Server Actions、API Routes、SSR/ISR 前提機能、Middleware、rewrites、redirects、cookies、サーバー側状態は使わない。
 - `window`、`navigator`、`localStorage` などの Browser API は Client Component または effect 内で扱う。
