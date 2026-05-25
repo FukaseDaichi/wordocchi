@@ -102,6 +102,7 @@ wordocchi/
   .gitignore
   eslint.config.mjs
   next.config.ts
+  package-lock.json
   package.json
   playwright.config.ts
   postcss.config.mjs
@@ -126,7 +127,7 @@ GitHub Pages への静的デプロイ workflow を置く。
 ブラウザから直接配信される静的ファイルを置く。
 
 - `icons/`: PWA 用アイコン。
-- `illustrations/`: `imagegen` skill で後から生成する PNG イラスト。初期実装では空でもよい。
+- `illustrations/`: `imagegen` skill で後から生成する PNG イラスト。画像未生成の間はディレクトリ自体を作らなくてもよい。
 - `sw.js`: Service Worker。GitHub Pages の `basePath` を考慮してキャッシュ対象を定義する。
 
 注意: `public` は root に置く。`src/public` にはしない。
@@ -136,7 +137,7 @@ GitHub Pages への静的デプロイ workflow を置く。
 Next.js App Router のルート定義を置く。ただしゲーム本体は `/` の単一URLで完結させる。ページごとのビジネスロジックは持たせず、`features` のコンポーネントや関数を呼び出す。
 
 - `layout.tsx`: 全体レイアウト、メタデータ、PWA 登録コンポーネントの配置。
-- `globals.css`: Tailwind CSS の import のみ。
+- `globals.css`: Tailwind CSS の import と、必要最小限の base/utility 補助 CSS。
 - `manifest.ts`: PWA manifest。
 - `page.tsx`: アプリ本体。新規ラウンド、キジュン選択、3ワード提示、タイマー、決選案内、キジュン公開を同じURL内で切り替える。
 
@@ -192,6 +193,7 @@ Next.js App Router のルート定義を置く。ただしゲーム本体は `/`
 - `base-path.ts`: GitHub Pages の `basePath` を扱う。
 - `constants.ts`: アプリ名、既定タイマー秒数、ストレージキー。
 - `storage.ts`: `localStorage` の読み書き共通処理。
+
 ### `src/types`
 
 複数 feature で共有する型を置く。feature 内だけで使う型は、各 feature の `*-types.ts` に置く。
@@ -304,7 +306,6 @@ e2e/
 ```text
 public/
   icons/
-  illustrations/
   sw.js
 src/
   app/
