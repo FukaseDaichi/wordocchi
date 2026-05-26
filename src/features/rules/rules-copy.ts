@@ -13,7 +13,7 @@ export const ruleSteps: readonly RuleStep[] = [
   {
     id: "what",
     heading: "ワードッチってどんなあそび？",
-    body: "親だけが知っているヒミツのキジュンに一番合う言葉を、子どもたちが親の判定をヒントに探していく会話あそびです。",
+    body: "親だけが知っているヒミツのキジュンに一番合う言葉を、みんなで探していく会話あそびです。親の判定をヒントに、どんな言葉が強いかを考えます。",
     illustration: {
       src: "/rules/what.png",
       alt: "ヒミツのキジュンをヒントに言葉を探す子どもたちのイラスト",
@@ -21,19 +21,9 @@ export const ruleSteps: readonly RuleStep[] = [
     accent: "sun",
   },
   {
-    id: "parent",
-    heading: "親のやくわり",
-    body: "親はキジュンを選び、最初の暫定チャンピオンになるワードを1つ読み上げます。子が出すワードと比べて、近いほうを判定します。",
-    illustration: {
-      src: "/rules/parent.png",
-      alt: "親が2つのワードを比べて判定しているイラスト",
-    },
-    accent: "sky",
-  },
-  {
     id: "pick",
     heading: "キジュンを2つから選ぼう",
-    body: "親は2つの候補から今回のヒミツのキジュンを1つ選びます。選ばなかったほうも含めて、子にはラウンド終了まで見せません。",
+    body: "親は2つの候補から今回のヒミツのキジュンを1つ選びます。選ばなかったほうも含めて、ゲーム終了まで子には公開しません。",
     illustration: {
       src: "/rules/pick.png",
       alt: "親が2枚のカードからヒミツのキジュンを選ぶイラスト",
@@ -41,9 +31,19 @@ export const ruleSteps: readonly RuleStep[] = [
     accent: "rose",
   },
   {
-    id: "timer",
-    heading: "タイマーで調査しよう",
-    body: "制限時間のあいだ、子は思いついたワードを出します。親は暫定チャンピオンと比べ、勝ったワードを新しいチャンピオンにします。",
+    id: "champion",
+    heading: "暫定チャンピオンを読み上げよう",
+    body: "親は3つの単語から、ヒミツのキジュンにもっとも近いと思うものを1つ選びます。その単語を暫定チャンピオンとして、みんなに宣言します。",
+    illustration: {
+      src: "/rules/parent.png",
+      alt: "親が暫定チャンピオンのワードを宣言しているイラスト",
+    },
+    accent: "sky",
+  },
+  {
+    id: "search",
+    heading: "暫定チャンピオン候補を探そう",
+    body: "子は順番に、思いついたワードを出します。親はそのワードを暫定チャンピオンと比べ、勝ったワードを新しいチャンピオンにします。",
     illustration: {
       src: "/rules/timer.png",
       alt: "タイマーを見ながらワードを出して比べる調査フェイズのイラスト",
@@ -51,9 +51,9 @@ export const ruleSteps: readonly RuleStep[] = [
     accent: "leaf",
   },
   {
-    id: "reveal",
-    heading: "決選してキジュンを公開",
-    body: "決選では、子どもたちがまだ出ていない最後のワードを1つずつ発表します。親が優勝ワードを選んだら、キジュンを公開して感想戦です。",
+    id: "final",
+    heading: "チャンピオンを決めよう",
+    body: "決選では、子どもたちがまだ出ていない最後のワードを1つずつ発表します。親はヒミツのキジュンに一番合う優勝ワードを選び、最後にキジュンを公開します。",
     illustration: {
       src: "/rules/reveal.png",
       alt: "決選のワードを選んでからヒミツのキジュンを公開するイラスト",
