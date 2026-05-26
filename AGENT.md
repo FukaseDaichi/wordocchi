@@ -23,6 +23,13 @@
 - `window`、`navigator`、`localStorage` などの Browser API は Client Component または effect 内で扱う。
 - GitHub Pages のサブパス配信に備え、config、manifest、Service Worker、asset URL の `basePath` 対応を保つ。
 
+## 画像生成
+
+- 画像生成が必要な場合は `image_gen` を使う。モデル指定が可能な環境では `gpt-image-2` に固定する。
+- `image_gen` が失敗した場合は、その時点で処理を中断し、観測できる失敗理由をユーザーへ出力する。
+- `image_gen` の失敗後に、プロンプト短縮での自動再試行、SVG/HTML/CSS/canvas などの決定的生成、PNG 書き出し、その他の代替手段へ勝手に切り替えない。
+- 代替手段や再試行が必要そうな場合でも、必ず先にユーザーへ確認する。
+
 ## コード配置
 
 - ファイル配置は `docs/nextjs-folder-structure-design.md` に従う。
