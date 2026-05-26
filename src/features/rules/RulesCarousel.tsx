@@ -6,8 +6,8 @@ import {
   ChevronRightIcon,
   PlayIcon,
   XIcon,
-  type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -29,13 +29,6 @@ const ACCENT_RING: Record<RuleStep["accent"], string> = {
   rose: "ring-rose-400/30",
   sky: "ring-sky-500/30",
   leaf: "ring-leaf-500/30",
-};
-
-const ACCENT_ICON: Record<RuleStep["accent"], string> = {
-  sun: "text-sun-400",
-  rose: "text-rose-500",
-  sky: "text-sky-500",
-  leaf: "text-leaf-600",
 };
 
 export function RulesCarousel({ onClose }: RulesCarouselProps) {
@@ -109,7 +102,6 @@ export function RulesCarousel({ onClose }: RulesCarouselProps) {
       <div ref={emblaRef} className="flex-1 overflow-hidden">
         <div className="flex h-full">
           {ruleSteps.map((step, index) => {
-            const Icon: LucideIcon = step.icon;
             return (
               <article
                 key={step.id}
@@ -117,16 +109,24 @@ export function RulesCarousel({ onClose }: RulesCarouselProps) {
                 aria-roledescription="slide"
                 aria-label={`ステップ ${index + 1} / ${total}: ${step.heading}`}
               >
-                <span
+                <figure
                   className={cn(
-                    "flex h-32 w-32 items-center justify-center rounded-full shadow-card ring-8 transition sm:h-40 sm:w-40",
+                    "h-36 w-36 overflow-hidden rounded-[1.75rem] shadow-card ring-8 transition sm:h-44 sm:w-44",
                     ACCENT_BG[step.accent],
                     ACCENT_RING[step.accent],
                   )}
-                  aria-hidden="true"
                 >
-                  <Icon className={cn("h-16 w-16 sm:h-20 sm:w-20", ACCENT_ICON[step.accent])} />
-                </span>
+                  <Image
+                    src={step.illustration.src}
+                    alt={step.illustration.alt}
+                    width={768}
+                    height={768}
+                    sizes="(min-width: 640px) 176px, 144px"
+                    className="h-full w-full object-cover"
+                    draggable={false}
+                    priority={index === 0}
+                  />
+                </figure>
                 <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-cream-200 px-3 py-1 text-xs font-rounded font-bold text-ink-600">
                   ステップ {index + 1}
                 </p>

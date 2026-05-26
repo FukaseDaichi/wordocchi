@@ -73,6 +73,7 @@ wordocchi/
         SegmentedControl.tsx
         TimerDisplay.tsx
     data/
+      sample-prompts.json
       sample-prompts.ts
     features/
       round/
@@ -179,7 +180,8 @@ Next.js App Router のルート定義を置く。ただしゲーム本体は `/`
 
 独自サンプルデータを置く。初期実装ではこのデータだけを使い、手入力モードは作らない。
 
-- `sample-prompts.ts`: 独自作成のキジュン候補とワード候補。
+- `sample-prompts.json`: 独自作成のキジュン候補とワード候補の本文。
+- `sample-prompts.ts`: `sample-prompts.json` を読み込み、画面表示用の ID 付きデータへ整形する。
 
 注意:
 

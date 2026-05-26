@@ -1,4 +1,4 @@
-const CACHE_VERSION = "wordocchi-v1";
+const CACHE_VERSION = "wordocchi-v2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}:app-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}:runtime`;
 const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
@@ -11,6 +11,11 @@ const appShellUrls = [
   `${basePath}/icons/icon-512.png`,
   `${basePath}/icons/maskable-512.png`,
   `${basePath}/og-image.png`,
+  `${basePath}/rules/what.png`,
+  `${basePath}/rules/parent.png`,
+  `${basePath}/rules/pick.png`,
+  `${basePath}/rules/timer.png`,
+  `${basePath}/rules/reveal.png`,
 ];
 
 self.addEventListener("install", (event) => {
