@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
+import { CatNotekeeper, DogDetective } from "@/components/illustrations/Mascots";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppShell } from "@/components/layout/AppShell";
 import { FooterBar } from "@/components/layout/FooterBar";
@@ -40,31 +41,32 @@ import { TIMER_OPTIONS_SECONDS } from "@/lib/constants";
 
 type ActiveModal = "rules" | "settings" | "secret" | null;
 type Confirm = "restart" | "endTimer" | null;
+type PhaseTone = "sun" | "rose" | "sky" | "leaf";
 
 type PhaseMeta = {
   readonly badge: string;
   readonly heading: string;
   readonly description: string;
-  readonly tone: "sun" | "rose" | "sky" | "leaf";
+  readonly tone: PhaseTone;
 };
 
 const phaseMeta: Record<RoundPhase, PhaseMeta> = {
   setup: {
-    badge: "はじめよう！",
+    badge: "はじめよう",
     heading: "新しいラウンドをはじめる",
     description:
       "2つのヒミツのキジュンを選び、3つのワードを子どもたちに伝えてワードッチを楽しみましょう。",
     tone: "sun",
   },
   secretSelection: {
-    badge: "ステップ1",
+    badge: "ステップ 1",
     heading: "ヒミツのキジュンを選ぼう",
     description:
       "2つの候補から、今回のヒミツのキジュンを1つだけ選んでください。選ばないほうは伏せたままにします。",
     tone: "rose",
   },
   wordPrompt: {
-    badge: "ステップ2",
+    badge: "ステップ 2",
     heading: "3つのワードを子に伝えよう",
     description:
       "下の3つのワードを口に出して伝えてください。子どもたちは、ヒミツのキジュンに近そうなワードを話し合います。",
@@ -85,7 +87,7 @@ const phaseMeta: Record<RoundPhase, PhaseMeta> = {
     tone: "rose",
   },
   reveal: {
-    badge: "正解はこちら！",
+    badge: "正解はこちら",
     heading: "ヒミツのキジュンを公開しよう",
     description:
       "今回のキジュンと3ワードを見ながら、どのあたりで気づいたかをみんなで話してみましょう。",
@@ -274,59 +276,65 @@ export function WordocchiApp() {
         <main className="grid gap-4 pb-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)] lg:items-start">
           <section
             key={phase}
-            className="motion-safe:animate-[slide-up-fade_350ms_ease-out] rounded-3xl bg-cream-100 p-5 shadow-card sm:p-6"
+            className="motion-safe:animate-[slide-up-fade_350ms_ease-out]"
             aria-labelledby="phase-heading"
           >
-            <div className="flex items-center gap-2 text-leaf-600">
-              <FlagIcon className="h-5 w-5" aria-hidden="true" />
-              <span className="text-sm font-bold">現在のフェイズ</span>
-            </div>
-            <span
-              className={cn(
-                "mt-3 inline-flex items-center rounded-full px-3 py-1 font-rounded text-sm font-bold shadow-[inset_0_-2px_0_rgba(0,0,0,0.08)]",
-                badgeClass(meta.tone),
-              )}
-            >
-              {meta.badge}
-            </span>
-            <h1
-              id="phase-heading"
-              ref={phaseHeadingRef}
-              tabIndex={-1}
-              className={cn(
-                "mt-3 font-rounded text-2xl font-extrabold leading-snug text-ink-900 outline-none sm:text-3xl",
-                meta.tone === "rose" && "text-rose-500",
-              )}
-            >
-              {meta.heading}
-            </h1>
-            <p className="mt-2 text-sm leading-relaxed text-ink-600 sm:text-base">
-              {meta.description}
-            </p>
+            <Card phaseTone={meta.tone} className="pt-6">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-leaf-600">
+                  <FlagIcon className="h-4 w-4" aria-hidden="true" />
+                  <span className="text-[11px] font-rounded font-extrabold uppercase tracking-[0.18em]">
+                    現在のフェイズ
+                  </span>
+                </div>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full px-3 py-1 font-rounded text-xs font-extrabold uppercase tracking-[0.14em]",
+                    badgeClass(meta.tone),
+                  )}
+                >
+                  {meta.badge}
+                </span>
+              </div>
+              <h2
+                id="phase-heading"
+                ref={phaseHeadingRef}
+                tabIndex={-1}
+                className={cn(
+                  "mt-3 font-rounded text-2xl font-extrabold leading-snug text-ink-900 outline-none sm:text-3xl",
+                  meta.tone === "rose" && "text-rose-500",
+                )}
+              >
+                {meta.heading}
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600 sm:text-base">
+                {meta.description}
+              </p>
 
-            <div className="mt-5">
-              <PhaseBody
-                phase={phase}
-                round={round}
-                onPickCriterion={(id) =>
-                  dispatch({ type: "round/chooseCriterion", criterionId: id })
-                }
-                onTimerStart={() =>
-                  dispatch({ type: "timer/start", now: new Date().toISOString() })
-                }
-                onTimerPause={() =>
-                  dispatch({ type: "timer/pause", now: new Date().toISOString() })
-                }
-                onTimerResume={() =>
-                  dispatch({ type: "timer/resume", now: new Date().toISOString() })
-                }
-                onTimerReset={() => dispatch({ type: "timer/reset" })}
-                onTimerEnd={() => setConfirm("endTimer")}
-                onFinish={() =>
-                  dispatch({ type: "round/finish", now: new Date().toISOString() })
-                }
-              />
-            </div>
+              <div className="mt-5">
+                <PhaseBody
+                  phase={phase}
+                  round={round}
+                  onPickCriterion={(id) =>
+                    dispatch({ type: "round/chooseCriterion", criterionId: id })
+                  }
+                  onTimerStart={() =>
+                    dispatch({ type: "timer/start", now: new Date().toISOString() })
+                  }
+                  onTimerPause={() =>
+                    dispatch({ type: "timer/pause", now: new Date().toISOString() })
+                  }
+                  onTimerResume={() =>
+                    dispatch({ type: "timer/resume", now: new Date().toISOString() })
+                  }
+                  onTimerReset={() => dispatch({ type: "timer/reset" })}
+                  onTimerEnd={() => setConfirm("endTimer")}
+                  onFinish={() =>
+                    dispatch({ type: "round/finish", now: new Date().toISOString() })
+                  }
+                />
+              </div>
+            </Card>
           </section>
 
           <aside className="grid gap-4">
@@ -461,10 +469,30 @@ function PhaseBody({
   switch (phase) {
     case "setup":
       return (
-        <p className="text-sm leading-relaxed text-ink-600">
-          下の <strong className="font-rounded font-extrabold text-leaf-600">「はじめる」</strong>{" "}
-          を押すと、ヒミツのキジュン候補と3つのワードがランダムに用意されます。
-        </p>
+        <div className="grid gap-3">
+          <p className="text-sm leading-relaxed text-ink-600">
+            下の <strong className="font-rounded font-extrabold text-leaf-600">「はじめる」</strong>{" "}
+            を押すと、ヒミツのキジュン候補と3つのワードがランダムに用意されます。
+          </p>
+          <ol className="grid gap-2 text-sm">
+            {[
+              "ヒミツのキジュンを1つ選ぶ",
+              "3つのワードを子どもたちに伝える",
+              "タイマーで話し合いを進める",
+              "決選 → キジュン公開で感想戦",
+            ].map((step, index) => (
+              <li
+                key={step}
+                className="flex items-center gap-3 rounded-2xl bg-cream-200/70 px-3 py-2"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cream-50 font-rounded text-[11px] font-extrabold text-ink-900 shadow-card">
+                  {index + 1}
+                </span>
+                <span className="leading-relaxed text-ink-900">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       );
 
     case "secretSelection":
@@ -480,7 +508,7 @@ function PhaseBody({
 
     case "timedInvestigation":
       return round ? (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <TimerDisplay
             remainingSeconds={round.timerRemainingSeconds}
             totalSeconds={round.timerSeconds}
@@ -548,34 +576,49 @@ function Hero({ compact }: { readonly compact: boolean }) {
   if (compact) {
     return (
       <section
-        className="flex items-center justify-center gap-2 pb-3 pt-2 text-center"
+        className="flex items-center justify-center gap-2 pb-3 pt-1 text-center"
         aria-label="ワードッチ"
       >
         <SparklesIcon className="h-4 w-4 text-sun-400" aria-hidden="true" />
-        <span className="font-rounded text-base font-extrabold">
-          {title.map(([letter, className]) => (
-            <span key={letter} className={className}>
-              {letter}
-            </span>
-          ))}
+        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink-600">
+          親のための進行サポート
         </span>
-        <span className="text-xs font-bold text-ink-600">親のための進行サポート</span>
       </section>
     );
   }
 
   return (
-    <section className="relative pb-4 pt-1 text-center">
-      <div className="pointer-events-none absolute left-0 top-5 hidden h-16 w-16 rounded-full bg-sun-400/30 sm:block" />
-      <div className="pointer-events-none absolute right-3 top-8 hidden h-12 w-12 rounded-full bg-sky-500/20 sm:block" />
-      <p className="text-xs font-bold text-ink-600">親のための進行サポートツール</p>
-      <h2 className="mt-1 font-rounded text-4xl font-black leading-tight sm:text-5xl">
-        {title.map(([letter, className]) => (
-          <span key={letter} className={className}>
-            {letter}
-          </span>
-        ))}
-      </h2>
+    <section className="relative pb-3 pt-2" aria-label="ワードッチ">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-4 mx-auto h-40 max-w-md rounded-full bg-gradient-to-br from-sun-400/20 via-rose-100/40 to-sky-100/30 blur-2xl"
+        aria-hidden="true"
+      />
+      <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-1">
+        <DogDetective
+          className="h-20 w-20 motion-safe:animate-[float-soft_5s_ease-in-out_infinite] sm:h-24 sm:w-24"
+          style={{ ["--rot" as string]: "-6deg" }}
+        />
+        <div className="text-center">
+          <p className="inline-flex items-center gap-1 rounded-full bg-cream-100 px-2.5 py-1 text-[10px] font-rounded font-extrabold uppercase tracking-[0.18em] text-ink-600 shadow-card">
+            <SparklesIcon className="h-3 w-3 text-sun-400" aria-hidden="true" />
+            親のための進行サポート
+          </p>
+          <h2 className="mt-2 font-rounded text-[2.6rem] font-black leading-none tracking-tight sm:text-6xl">
+            {title.map(([letter, className]) => (
+              <span key={letter} className={className}>
+                {letter}
+              </span>
+            ))}
+          </h2>
+          <p className="mt-1 text-xs font-bold text-ink-600 sm:text-sm">
+            あたたかい絵本のような進行カード
+          </p>
+        </div>
+        <CatNotekeeper
+          className="h-20 w-20 motion-safe:animate-[float-soft_5s_ease-in-out_infinite_0.6s] sm:h-24 sm:w-24"
+          style={{ ["--rot" as string]: "6deg" }}
+        />
+      </div>
     </section>
   );
 }
@@ -592,11 +635,15 @@ function SecretHintCard({
   readonly onClose: () => void;
 }) {
   return (
-    <Card as="aside" tone="secret" aria-label="親だけが見るヒント">
+    <Card as="aside" tone="secret" aria-label="親だけが見るヒント" className="pt-5">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-rounded text-lg font-bold text-ink-900">親だけが見るヒント</h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-600">
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-rounded font-extrabold uppercase tracking-[0.16em] text-rose-500">
+            <LockKeyholeIcon className="h-3 w-3" aria-hidden="true" />
+            ヒミツ
+          </p>
+          <h2 className="mt-2 font-rounded text-lg font-bold text-ink-900">親だけが見るヒント</h2>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-600">
             ヒミツのキジュンは子に見せないでください。
           </p>
         </div>
@@ -677,7 +724,7 @@ function RoundMiniSummary({ round }: { readonly round: Round }) {
   );
 }
 
-function badgeClass(tone: PhaseMeta["tone"]): string {
+function badgeClass(tone: PhaseTone): string {
   switch (tone) {
     case "rose":
       return "bg-rose-100 text-rose-500";

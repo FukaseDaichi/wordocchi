@@ -49,9 +49,17 @@ const config = {
         card: "0 2px 6px rgba(110,80,40,0.08)",
         cta: "0 6px 16px rgba(110,80,40,0.12)",
         float: "0 12px 28px rgba(110,80,40,0.18)",
+        bar: "0 -4px 12px rgba(110,80,40,0.10)",
+        pop: "0 4px 0 rgba(110,80,40,0.08), 0 2px 6px rgba(110,80,40,0.10)",
       },
       borderRadius: {
         "4xl": "2rem",
+      },
+      backgroundImage: {
+        "ring-leaf":
+          "conic-gradient(from -90deg, #5BA84A var(--ring-progress, 0%), #F0E2C8 0)",
+        "ring-rose":
+          "conic-gradient(from -90deg, #E36B6B var(--ring-progress, 0%), #FBE3E0 0)",
       },
     },
   },

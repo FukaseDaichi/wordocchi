@@ -29,9 +29,9 @@ type PrimaryActionConfig = {
 const PRIMARY_ACTION: Record<RoundPhase, PrimaryActionConfig | null> = {
   setup: { label: "はじめる", icon: <PlayIcon className="h-5 w-5" /> },
   secretSelection: {
-    label: "キジュンを選ぶと進めます",
+    label: "キジュンを選んでね",
     icon: <ChevronRightIcon className="h-5 w-5" />,
-    hint: "上のカードから1つ選んでください",
+    hint: "上のカードから1つ選択",
   },
   wordPrompt: { label: "タイマー開始", icon: <PlayIcon className="h-5 w-5" /> },
   timedInvestigation: {
@@ -49,23 +49,19 @@ export function FooterBar({ phase, canAdvance, onRestart, onAdvance }: FooterBar
 
   return (
     <footer
-      className="sticky bottom-0 z-30 border-t border-border-200/60 bg-cream-50/95 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-4px_12px_rgba(110,80,40,0.10)] backdrop-blur"
+      className="sticky bottom-0 z-30 border-t border-border-200/60 bg-cream-50/95 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2.5 shadow-bar backdrop-blur"
       role="contentinfo"
       aria-label="主要アクション"
     >
-      <div className="mx-auto flex max-w-screen-sm items-stretch gap-3 lg:max-w-5xl">
+      <div className="mx-auto flex max-w-screen-sm items-stretch gap-2.5 lg:max-w-5xl">
         <button
           type="button"
           onClick={onRestart}
-          className="tap-highlight-none group flex h-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl bg-cream-100 px-3 text-ink-900 shadow-card transition active:scale-[0.97] motion-reduce:transition-none"
+          className="tap-highlight-none group flex h-14 shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-cream-100 px-3.5 text-ink-900 shadow-card transition active:scale-[0.97] hover:bg-cream-200 motion-reduce:transition-none"
           aria-label="新しくはじめる"
         >
           <RotateCcwIcon className="h-5 w-5 text-rose-500" aria-hidden="true" />
-          <span className="text-[10px] font-rounded font-bold leading-tight">
-            新しく
-            <br />
-            はじめる
-          </span>
+          <span className="font-rounded text-sm font-bold whitespace-nowrap">はじめ直す</span>
         </button>
 
         {action ? (
@@ -74,27 +70,45 @@ export function FooterBar({ phase, canAdvance, onRestart, onAdvance }: FooterBar
             onClick={onAdvance}
             disabled={disabled}
             className={cn(
-              "tap-highlight-none group flex h-14 flex-1 items-center justify-between gap-2 rounded-2xl px-4 font-rounded font-bold transition active:scale-[0.98] motion-reduce:transition-none",
+              "tap-highlight-none group relative flex h-14 flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl px-4 font-rounded font-bold transition active:scale-[0.98] motion-reduce:transition-none",
               disabled
-                ? "cursor-not-allowed bg-cream-100 text-ink-400 shadow-none"
+                ? "cursor-not-allowed border-2 border-dashed border-border-200 bg-cream-100/70 text-ink-400 shadow-none"
                 : "bg-leaf-500 text-white shadow-cta hover:bg-leaf-600",
             )}
             aria-disabled={disabled}
           >
-            <span className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 motion-reduce:transition-none">
+            {!disabled && (
+              <span
+                className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10"
+                aria-hidden="true"
+              />
+            )}
+            <span className="relative flex items-center gap-2.5">
+              <span
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-full",
+                  disabled ? "bg-cream-200/60" : "bg-white/15",
+                )}
+              >
                 {action.icon}
               </span>
               <span className="flex flex-col text-left">
-                <span className="text-base sm:text-lg">{action.label}</span>
+                <span className="text-base leading-tight sm:text-lg">{action.label}</span>
                 {action.hint ? (
-                  <span className="text-[11px] font-bold text-ink-400">{action.hint}</span>
+                  <span
+                    className={cn(
+                      "text-[11px] font-bold leading-tight",
+                      disabled ? "text-ink-400" : "text-white/80",
+                    )}
+                  >
+                    {action.hint}
+                  </span>
                 ) : null}
               </span>
             </span>
             {!disabled && (
               <ChevronRightIcon
-                className="h-5 w-5 shrink-0 opacity-90 transition group-hover:translate-x-0.5"
+                className="relative h-5 w-5 shrink-0 opacity-90 transition group-hover:translate-x-0.5"
                 aria-hidden="true"
               />
             )}
