@@ -93,7 +93,9 @@ export function RulesCarousel({ onClose }: RulesCarouselProps) {
         >
           <XIcon className="h-5 w-5" aria-hidden="true" />
         </button>
-        <h2 className="font-rounded text-lg font-extrabold text-ink-900">あそびかた</h2>
+        <h2 className="font-rounded text-lg font-extrabold text-ink-900">
+          あそびかた
+        </h2>
         <span className="text-sm font-rounded font-bold tabular-nums text-ink-600">
           {selected + 1}/{total}
         </span>
@@ -111,7 +113,7 @@ export function RulesCarousel({ onClose }: RulesCarouselProps) {
               >
                 <figure
                   className={cn(
-                    "h-36 w-36 overflow-hidden rounded-[1.75rem] shadow-card ring-8 transition sm:h-44 sm:w-44",
+                    "aspect-[3/2] w-56 overflow-hidden rounded-[1.75rem] shadow-card ring-8 transition sm:w-72",
                     ACCENT_BG[step.accent],
                     ACCENT_RING[step.accent],
                   )}
@@ -119,9 +121,9 @@ export function RulesCarousel({ onClose }: RulesCarouselProps) {
                   <Image
                     src={step.illustration.src}
                     alt={step.illustration.alt}
-                    width={768}
-                    height={768}
-                    sizes="(min-width: 640px) 176px, 144px"
+                    width={1536}
+                    height={1024}
+                    sizes="(min-width: 640px) 288px, 224px"
                     className="h-full w-full object-cover"
                     draggable={false}
                     priority={index === 0}
