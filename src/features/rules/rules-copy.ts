@@ -46,7 +46,7 @@ export const ruleSteps: readonly RuleStep[] = [
     body: "子は順番に、思いついたワードを出します。親はそのワードを暫定チャンピオンと比べ、勝ったワードを新しいチャンピオンにします。",
     illustration: {
       src: "/rules/timer.png",
-      alt: "タイマーを見ながらカードを出して比べるくまとうさぎとねこのイラスト",
+      alt: "思いついたワードを発言するうさぎとねこ、それを聞いて悩んでいるくまのイラスト",
     },
     accent: "leaf",
   },
@@ -56,7 +56,7 @@ export const ruleSteps: readonly RuleStep[] = [
     body: "決選では、子どもたちがまだ出ていない最後のワードを1つずつ発表します。親はヒミツのキジュンに一番合う優勝ワードを選び、最後にキジュンを公開します。",
     illustration: {
       src: "/rules/reveal.png",
-      alt: "優勝カードとヒミツのキジュンを公開して喜ぶくまとうさぎとねこのイラスト",
+      alt: "優勝とヒミツのキジュンを公開して喜ぶくまとうさぎとねこのイラスト",
     },
     accent: "sun",
   },
