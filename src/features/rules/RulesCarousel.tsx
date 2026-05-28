@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { withBasePath } from "@/lib/base-path";
 import { ruleSteps, type RuleStep } from "@/features/rules/rules-copy";
 
 type RulesCarouselProps = {
@@ -119,7 +120,7 @@ export function RulesCarousel({ onClose }: RulesCarouselProps) {
                   )}
                 >
                   <Image
-                    src={step.illustration.src}
+                    src={withBasePath(step.illustration.src)}
                     alt={step.illustration.alt}
                     width={1536}
                     height={1024}
