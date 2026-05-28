@@ -4,12 +4,11 @@ import {
   EyeIcon,
   EyeOffIcon,
   FlagIcon,
-  LockKeyholeIcon,
   SparklesIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
-import { CatNotekeeper, DogDetective } from "@/components/illustrations/Mascots";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppShell } from "@/components/layout/AppShell";
 import { FooterBar } from "@/components/layout/FooterBar";
@@ -32,6 +31,7 @@ import { SettingsContent } from "@/features/settings/SettingsContent";
 import { CountdownControls } from "@/features/timer/components/CountdownControls";
 import { secondsToMinutesLabel } from "@/features/timer/timer-utils";
 import { useCountdown } from "@/features/timer/use-countdown";
+import { withBasePath } from "@/lib/base-path";
 import { cn } from "@/lib/cn";
 import { TIMER_OPTIONS_SECONDS } from "@/lib/constants";
 
@@ -45,6 +45,14 @@ type PhaseMeta = {
   readonly description: string;
   readonly tone: PhaseTone;
 };
+
+const illustrationSrc = {
+  dogDetective: "/illustrations/dog-detective.png",
+  catNotekeeper: "/illustrations/cat-notekeeper.png",
+  lockSecret: "/illustrations/lock-secret.png",
+  decorStar: "/illustrations/decor-star.png",
+  decorHeart: "/illustrations/decor-heart.png",
+} as const;
 
 const phaseMeta: Record<RoundPhase, PhaseMeta> = {
   setup: {
@@ -544,9 +552,30 @@ function Hero({ compact }: { readonly compact: boolean }) {
         className="pointer-events-none absolute inset-x-0 top-4 mx-auto h-40 max-w-md rounded-full bg-gradient-to-br from-sun-400/20 via-rose-100/40 to-sky-100/30 blur-2xl"
         aria-hidden="true"
       />
+      <Image
+        src={withBasePath(illustrationSrc.decorStar)}
+        alt=""
+        width={256}
+        height={256}
+        aria-hidden="true"
+        className="pointer-events-none absolute right-7 top-1 h-9 w-9 rotate-12 object-contain opacity-85 sm:right-16 sm:h-11 sm:w-11"
+      />
+      <Image
+        src={withBasePath(illustrationSrc.decorHeart)}
+        alt=""
+        width={256}
+        height={256}
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-1 left-7 h-8 w-8 -rotate-12 object-contain opacity-80 sm:left-16 sm:h-10 sm:w-10"
+      />
       <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-1">
-        <DogDetective
-          className="h-20 w-20 motion-safe:animate-[float-soft_5s_ease-in-out_infinite] sm:h-24 sm:w-24"
+        <Image
+          src={withBasePath(illustrationSrc.dogDetective)}
+          alt=""
+          width={512}
+          height={512}
+          priority
+          className="h-20 w-20 object-contain motion-safe:animate-[float-soft_5s_ease-in-out_infinite] sm:h-24 sm:w-24"
           style={{ ["--rot" as string]: "-6deg" }}
         />
         <div className="text-center">
@@ -565,8 +594,13 @@ function Hero({ compact }: { readonly compact: boolean }) {
             あたたかい絵本のような進行カード
           </p>
         </div>
-        <CatNotekeeper
-          className="h-20 w-20 motion-safe:animate-[float-soft_5s_ease-in-out_infinite_0.6s] sm:h-24 sm:w-24"
+        <Image
+          src={withBasePath(illustrationSrc.catNotekeeper)}
+          alt=""
+          width={512}
+          height={512}
+          priority
+          className="h-20 w-20 object-contain motion-safe:animate-[float-soft_5s_ease-in-out_infinite_0.6s] sm:h-24 sm:w-24"
           style={{ ["--rot" as string]: "6deg" }}
         />
       </div>
@@ -589,10 +623,16 @@ function SecretCriterionBanner({
       className="relative mb-3 flex items-center gap-3 overflow-hidden rounded-3xl border-2 border-dashed border-rose-400 bg-gradient-to-br from-rose-100 via-cream-100 to-cream-100 px-4 py-3 shadow-card sm:px-5"
     >
       <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-card"
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cream-50 shadow-card"
         aria-hidden="true"
       >
-        <LockKeyholeIcon className="h-5 w-5" />
+        <Image
+          src={withBasePath(illustrationSrc.lockSecret)}
+          alt=""
+          width={512}
+          height={512}
+          className="h-12 w-12 object-contain"
+        />
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-rounded font-extrabold uppercase tracking-[0.16em] text-rose-500">

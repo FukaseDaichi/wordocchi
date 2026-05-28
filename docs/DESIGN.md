@@ -808,16 +808,43 @@ function RulesCarousel({ onClose }: { onClose: () => void }) {
 
 ### `secretSelection` — ヒミツのキジュンを選ぶ
 
+**2026-05-28 改訂:** `CriterionPicker` を「ヒミツの封筒 (sealed envelope) を1つ封をする」見立てに刷新。子に見せられない親専用フェイズを、ビジュアルとマイクロモーションで強く伝える。
+
 | 要素 | 内容 |
 |---|---|
 | `HeroIllustration` | コンパクト (キャラなし) |
-| `PhaseBadge` | 「ステップ 1/3」(`secret`) |
+| `PhaseBadge` | 「ステップ 1」(`secret`) |
 | 見出し | 「ヒミツのキジュンを選ぼう」 |
-| 説明 | 「2つの候補から、今回のヒミツのキジュンを1つだけ選んでね。選ばないほうは伏せたままにします。」 |
-| パネル内 | `CriterionCandidateCard` ×2 (縦並び)。「親だけが見るカード」のラベルを添える |
+| 説明 | 「2つの候補から、今回のヒミツのキジュンを1つだけ選んでください。選ばないほうは伏せたままにします。」 |
+| パネル上ラベル | `親だけがそっと開く封筒` を `EyeOffIcon` + 破線ピル + `rose-500` で表記し、`SecretCriterionBanner` と同じ「親だけ」ボキャブラリを使う |
+| パネル内 | `CriterionPicker` (`SecretEnvelopeCard` ×2、縦並び)。A=`rose` 系・B=`sky` 系で配色を完全に分け、判別性を上げる |
+| パネル下 | 「選ばなかった封筒は、このラウンドの間ずっと閉じたままにしておきます」(補助テキスト、`ink-400`) |
 | SecretCriterionBanner | まだキジュン未確定のため非表示 |
 | FooterBar 左 | 「↻ 新しくはじめる」 |
-| FooterBar 右 | 「次へ」(候補が選ばれるまで disabled) |
+| FooterBar 右 | 「キジュンを選んでね」(`disabled` + 「上のカードから1つ選択」ヒント。CTA は出さない) |
+
+#### `SecretEnvelopeCard` (`CriterionPicker.tsx`)
+
+封筒モチーフ:
+- 外枠: `border-2 border-dashed` (A は `border-rose-400`、B は `border-sky-500`)、`bg-gradient-to-br from-{tone}-100 via-cream-100 to-cream-200`、角丸 `rounded-3xl`、`shadow-card`
+- 内側の「縫い目」: `absolute inset-2 rounded-[1.4rem] border border-dashed` (`rose-300` / `sky-500/50`) — 封筒の内側ステッチを示すサブの破線
+- 「ヒミツ」斜め透かし: `font-rounded text-[2.2rem] font-black -rotate-[8deg]`、`text-rose-300/40` または `text-sky-500/30`。card の `overflow-hidden` で左下から半クリップさせ、テクスチャとして機能させる(可読の text として競合しない)
+- 左上チップ: `LockKeyholeIcon` + `封筒 A` / `封筒 B`、`bg-{tone}-500 text-white px-2.5 py-1 rounded-full uppercase tracking-[0.18em]`
+- 右上の封蝋スタンプ: `h-12 w-12 rounded-full bg-{tone}-500 text-white shadow-pop` に大文字 `A` / `B`、内側 `border border-white/40` を二重リングとして重ねる
+- 本文: `font-rounded text-[1.35rem] sm:text-2xl font-extrabold text-ink-900`
+- 下部ヒント: `✨ タップしてこのキジュンに封をする` (`SparklesIcon` + tone 色)
+
+選択時の演出 (motion-safe のみ、`motion-reduce` で即時遷移):
+- カード本体: `animate-secret-card-stamp` (520ms、`cubic-bezier(0.22, 1, 0.36, 1)`) — `scale(1) → 1.04 → 1.08 -0.4deg → 1.015` でスタンプ感
+- 封蝋: `animate-secret-seal-pulse` (520ms) — `box-shadow` の rose リングが外に広がって消える
+- 確定ピル: 右下に `封をしました` (`LockKeyholeIcon`、tone カラー)、`animate-secret-card-confirm` (360ms、80ms 遅延) で下から出る
+- シマー: card 中央に `bg-gradient-to-br from-sun-100` の球状ハイライトを `mix-blend-screen` + `animate-secret-card-shimmer` (700ms) で一回斜めにスイープ
+- 選ばれなかった片方: `animate-secret-card-fade` (320ms) で `opacity 1 → 0.32 / scale 1 → 0.94 / translateY +6` に退かせる
+- ボタン両方 `disabled` にして二重タップを止め、520ms 後に `onPick(id)` を呼んで `wordPrompt` フェイズへ進む
+
+`prefers-reduced-motion: reduce` のときは、`useEffect` 不要・`setTimeout` 不要で同一フレームに `onPick(id)` を呼ぶ。アニメーションクラスは `motion-safe:` プレフィックスで付与しているので、CSS 側は自動的に無効化される。
+
+`tailwind.config.ts` に追加した keyframes / animation: `secret-card-stamp` / `secret-card-fade` / `secret-card-shimmer` / `secret-card-confirm` / `secret-seal-pulse`。プレフィックス `secret-` で名前空間を切り、他フェイズ(特にこの後で予定される `wordPrompt`)のキーフレームと衝突しないようにする。
 
 ### `wordPrompt` — 3つのワードを伝える
 
@@ -999,7 +1026,7 @@ src/
   features/
     round/
       components/
-        CriterionPicker.tsx          # ★ 更新: A/B 2択感, rose/sky alternation, glow blob
+        CriterionPicker.tsx          # ★ 更新 (2026-05-28): 封筒モチーフ (dashed border + 「ヒミツ」watermark + 封蝋スタンプ + 確定アニメーション)
         PromptWords.tsx              # ★ 更新: rose/sun/sky 三色カード, slight rotation, shadow-pop
         RevealPanel.tsx              # ★ 更新: dashed border + radial glow の reveal hero
         WordocchiApp.tsx             # ★ 更新: Hero (マスコット内蔵), per-phase Card, SecretCriterionBanner (常時表示/目で切替)
