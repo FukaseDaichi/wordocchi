@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
-type CardTone = "default" | "accent" | "secret";
+type CardTone = "default" | "accent";
 type PhaseTone = "sun" | "rose" | "sky" | "leaf";
 
 type CardProps = HTMLAttributes<HTMLElement> & {
@@ -15,7 +15,6 @@ type CardProps = HTMLAttributes<HTMLElement> & {
 const toneClass: Record<CardTone, string> = {
   default: "bg-cream-100 shadow-card",
   accent: "bg-cream-200 shadow-card",
-  secret: "border-2 border-dashed border-sun-400 bg-cream-200 shadow-card",
 };
 
 const phaseStripClass: Record<PhaseTone, string> = {

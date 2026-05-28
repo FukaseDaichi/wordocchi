@@ -3,7 +3,7 @@ import { ChevronRightIcon } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 
-type ButtonIntent = "primary" | "secondary" | "ghost" | "danger" | "secret";
+type ButtonIntent = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "md" | "lg" | "icon";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -20,8 +20,6 @@ const intentClass: Record<ButtonIntent, string> = {
   ghost: "bg-transparent text-ink-900 hover:bg-cream-100",
   danger:
     "border-2 border-dashed border-rose-400 bg-rose-100 text-danger-500 hover:bg-rose-100/80",
-  secret:
-    "border-2 border-dashed border-rose-400 bg-rose-100/60 text-rose-500 hover:bg-rose-100",
 };
 
 const sizeClass: Record<ButtonSize, string> = {

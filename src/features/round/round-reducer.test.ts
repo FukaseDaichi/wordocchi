@@ -61,6 +61,58 @@ describe("roundReducer", () => {
     expect(finished.currentRound?.timerStatus).toBe("finished");
   });
 
+  it("steps back one phase and undoes the matching state", () => {
+    const started = roundReducer(createInitialState(), {
+      type: "round/start",
+      timerSeconds: 180,
+      now: baseNow,
+    });
+    const criterionId = started.currentRound?.criteriaCandidates[0]?.id ?? "";
+    const wordPrompt = roundReducer(started, {
+      type: "round/chooseCriterion",
+      criterionId,
+    });
+
+    // wordPrompt -> secretSelection clears the chosen criterion.
+    const backToSecret = roundReducer(wordPrompt, { type: "round/back" });
+    expect(backToSecret.currentRound?.phase).toBe("secretSelection");
+    expect(backToSecret.currentRound?.secretCriterion).toBeNull();
+
+    // secretSelection is the first active phase, so back is a no-op.
+    const stillSecret = roundReducer(backToSecret, { type: "round/back" });
+    expect(stillSecret.currentRound?.phase).toBe("secretSelection");
+
+    // timedInvestigation -> wordPrompt resets the timer to the full duration.
+    const timed = roundReducer(wordPrompt, {
+      type: "round/startInvestigation",
+      now: baseNow,
+    });
+    const ticked = roundReducer(timed, {
+      type: "timer/tick",
+      now: "2026-05-25T00:00:05.000Z",
+    });
+    const backToWords = roundReducer(ticked, { type: "round/back" });
+    expect(backToWords.currentRound?.phase).toBe("wordPrompt");
+    expect(backToWords.currentRound?.timerStatus).toBe("idle");
+    expect(backToWords.currentRound?.timerRemainingSeconds).toBe(180);
+    expect(backToWords.currentRound?.secretCriterion?.id).toBe(criterionId);
+
+    // reveal -> finalGuide -> timedInvestigation walks back step by step.
+    const finalGuide = roundReducer(timed, { type: "round/goFinal", now: baseNow });
+    const revealed = roundReducer(finalGuide, {
+      type: "round/reveal",
+      now: "2026-05-25T00:00:06.000Z",
+    });
+    const backToFinal = roundReducer(revealed, { type: "round/back" });
+    expect(backToFinal.currentRound?.phase).toBe("finalGuide");
+    expect(backToFinal.currentRound?.completedAt).toBeNull();
+
+    const backToTimed = roundReducer(backToFinal, { type: "round/back" });
+    expect(backToTimed.currentRound?.phase).toBe("timedInvestigation");
+    expect(backToTimed.currentRound?.timerStatus).toBe("idle");
+    expect(backToTimed.currentRound?.timerRemainingSeconds).toBe(180);
+  });
+
   it("reveals and then finishes the round", () => {
     const started = roundReducer(createInitialState(), {
       type: "round/start",

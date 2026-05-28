@@ -1,6 +1,6 @@
 import type { Round, RoundPhase, RoundState, Settings, TimerStatus } from "@/features/round/round-types";
 import { SCHEMA_VERSION, STORAGE_KEY, TIMER_OPTIONS_SECONDS } from "@/lib/constants";
-import { readJson, removeItem, writeJson } from "@/lib/storage";
+import { readJson, writeJson } from "@/lib/storage";
 
 const roundPhases = [
   "secretSelection",
@@ -19,10 +19,6 @@ export function loadRoundState(): RoundState | null {
 
 export function saveRoundState(state: RoundState): void {
   writeJson(STORAGE_KEY, state);
-}
-
-export function clearRoundState(): void {
-  removeItem(STORAGE_KEY);
 }
 
 export function parsePersistedRoundState(value: unknown): RoundState | null {

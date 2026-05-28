@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ChevronLeftIcon,
   ChevronRightIcon,
   EyeIcon,
   FastForwardIcon,
@@ -16,7 +17,9 @@ import type { RoundPhase } from "@/features/round/round-types";
 type FooterBarProps = {
   readonly phase: RoundPhase;
   readonly canAdvance: boolean;
+  readonly canGoBack: boolean;
   readonly onRestart: () => void;
+  readonly onBack: () => void;
   readonly onAdvance: () => void;
 };
 
@@ -43,7 +46,14 @@ const PRIMARY_ACTION: Record<RoundPhase, PrimaryActionConfig | null> = {
   done: { label: "新しいラウンドへ", icon: <PlayIcon className="h-5 w-5" /> },
 };
 
-export function FooterBar({ phase, canAdvance, onRestart, onAdvance }: FooterBarProps) {
+export function FooterBar({
+  phase,
+  canAdvance,
+  canGoBack,
+  onRestart,
+  onBack,
+  onAdvance,
+}: FooterBarProps) {
   const action = PRIMARY_ACTION[phase];
   const disabled = !canAdvance;
 
@@ -57,12 +67,26 @@ export function FooterBar({ phase, canAdvance, onRestart, onAdvance }: FooterBar
         <button
           type="button"
           onClick={onRestart}
-          className="tap-highlight-none group flex h-14 shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-cream-100 px-3.5 text-ink-900 shadow-card transition active:scale-[0.97] hover:bg-cream-200 motion-reduce:transition-none"
+          className="tap-highlight-none group flex h-14 w-14 shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-cream-100 px-0 text-ink-900 shadow-card transition active:scale-[0.97] hover:bg-cream-200 motion-reduce:transition-none sm:w-auto sm:px-3.5"
           aria-label="新しくはじめる"
         >
           <RotateCcwIcon className="h-5 w-5 text-rose-500" aria-hidden="true" />
-          <span className="font-rounded text-sm font-bold whitespace-nowrap">はじめ直す</span>
+          <span className="hidden font-rounded text-sm font-bold whitespace-nowrap sm:inline">
+            はじめ直す
+          </span>
         </button>
+
+        {canGoBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="tap-highlight-none flex h-14 shrink-0 items-center justify-center gap-1 rounded-2xl bg-cream-100 px-4 text-ink-900 shadow-card transition active:scale-[0.97] hover:bg-cream-200 motion-reduce:transition-none"
+            aria-label="前のフェイズへ戻る"
+          >
+            <ChevronLeftIcon className="h-5 w-5 text-ink-600" aria-hidden="true" />
+            <span className="font-rounded text-sm font-bold whitespace-nowrap">もどる</span>
+          </button>
+        ) : null}
 
         {action ? (
           <button

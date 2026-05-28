@@ -5,7 +5,6 @@ import {
   EyeOffIcon,
   FlagIcon,
   LockKeyholeIcon,
-  RotateCcwIcon,
   SparklesIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
@@ -26,20 +25,17 @@ import { PromptWords } from "@/features/round/components/PromptWords";
 import { RevealPanel } from "@/features/round/components/RevealPanel";
 import { createInitialState } from "@/features/round/round-actions";
 import { roundReducer } from "@/features/round/round-reducer";
-import {
-  clearRoundState,
-  loadRoundState,
-  saveRoundState,
-} from "@/features/round/round-storage";
+import { loadRoundState, saveRoundState } from "@/features/round/round-storage";
 import type { Round, RoundPhase } from "@/features/round/round-types";
 import { RulesDialog } from "@/features/rules/RulesDialog";
+import { SettingsContent } from "@/features/settings/SettingsContent";
 import { CountdownControls } from "@/features/timer/components/CountdownControls";
 import { secondsToMinutesLabel } from "@/features/timer/timer-utils";
 import { useCountdown } from "@/features/timer/use-countdown";
 import { cn } from "@/lib/cn";
 import { TIMER_OPTIONS_SECONDS } from "@/lib/constants";
 
-type ActiveModal = "rules" | "settings" | "secret" | null;
+type ActiveModal = "rules" | "settings" | null;
 type Confirm = "restart" | "endTimer" | null;
 type PhaseTone = "sun" | "rose" | "sky" | "leaf";
 
@@ -107,12 +103,15 @@ export function WordocchiApp() {
   const [hasHydrated, setHasHydrated] = useState(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [confirm, setConfirm] = useState<Confirm>(null);
+  const [isSecretVisible, setIsSecretVisible] = useState(true);
   const phaseHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const round = state.currentRound;
   const phase: RoundPhase = round?.phase ?? "setup";
   const meta = phaseMeta[phase];
   const secretText = round?.secretCriterion?.text ?? null;
+  const showSecretBanner =
+    Boolean(secretText) && phase !== "reveal" && phase !== "done";
 
   const timerOptions = useMemo(
     () =>
@@ -150,23 +149,6 @@ export function WordocchiApp() {
       phaseHeadingRef.current?.focus();
     }
   }, [hasHydrated, phase]);
-
-  useEffect(() => {
-    if (activeModal !== "secret") {
-      return;
-    }
-
-    const close = () => setActiveModal(null);
-    const timerId = window.setTimeout(close, 5000);
-    window.addEventListener("pointerup", close);
-    window.addEventListener("keyup", close);
-
-    return () => {
-      window.clearTimeout(timerId);
-      window.removeEventListener("pointerup", close);
-      window.removeEventListener("keyup", close);
-    };
-  }, [activeModal]);
 
   const closeRules = useCallback(() => {
     dispatch({ type: "settings/markRulesSeen" });
@@ -206,6 +188,10 @@ export function WordocchiApp() {
     }
   }, [phase, startRound]);
 
+  const goBack = useCallback(() => {
+    dispatch({ type: "round/back" });
+  }, []);
+
   const handleRestartRequest = useCallback(() => {
     if (phase === "setup") {
       startRound();
@@ -228,24 +214,6 @@ export function WordocchiApp() {
     setConfirm(null);
   }, []);
 
-  const openSecret = () => {
-    if (secretText) {
-      setActiveModal("secret");
-    }
-  };
-
-  const closeSecret = () => {
-    if (activeModal === "secret") {
-      setActiveModal(null);
-    }
-  };
-
-  const resetApp = () => {
-    clearRoundState();
-    dispatch({ type: "settings/resetApp" });
-    setActiveModal("rules");
-  };
-
   const canAdvance = useMemo(() => {
     switch (phase) {
       case "setup":
@@ -262,6 +230,18 @@ export function WordocchiApp() {
     }
   }, [phase]);
 
+  const canGoBack = useMemo(() => {
+    switch (phase) {
+      case "wordPrompt":
+      case "timedInvestigation":
+      case "finalGuide":
+      case "reveal":
+        return true;
+      default:
+        return false;
+    }
+  }, [phase]);
+
   return (
     <div className="safe-screen flex min-h-dvh flex-col">
       <AppHeader
@@ -271,6 +251,14 @@ export function WordocchiApp() {
       <PhaseStepper phase={phase} />
 
       <AppShell>
+        {showSecretBanner && secretText ? (
+          <SecretCriterionBanner
+            secretText={secretText}
+            isVisible={isSecretVisible}
+            onToggle={() => setIsSecretVisible((visible) => !visible)}
+          />
+        ) : null}
+
         <Hero compact={phase !== "setup"} />
 
         <main className="grid gap-4 pb-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)] lg:items-start">
@@ -338,13 +326,6 @@ export function WordocchiApp() {
           </section>
 
           <aside className="grid gap-4">
-            <SecretHintCard
-              canReveal={Boolean(secretText) && phase !== "reveal" && phase !== "done"}
-              secretText={secretText}
-              onOpen={openSecret}
-              onClose={closeSecret}
-            />
-
             {(phase === "setup" || phase === "secretSelection") && (
               <TimerSettingCard
                 options={timerOptions}
@@ -365,7 +346,9 @@ export function WordocchiApp() {
       <FooterBar
         phase={phase}
         canAdvance={canAdvance}
+        canGoBack={canGoBack}
         onRestart={handleRestartRequest}
+        onBack={goBack}
         onAdvance={advanceFromCurrentPhase}
       />
 
@@ -376,44 +359,12 @@ export function WordocchiApp() {
         isOpen={activeModal === "settings"}
         onClose={() => setActiveModal(null)}
       >
-        <div className="space-y-6">
-          <SegmentedControl
-            label="既定タイマー時間"
-            options={timerOptions}
-            value={state.settings.defaultTimerSeconds}
-            onChange={(seconds) => dispatch({ type: "settings/updateTimer", seconds })}
-          />
-          <div className="rounded-2xl bg-rose-100/60 p-4">
-            <p className="font-rounded text-lg font-bold text-danger-500">
-              保存データを初期化する
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-ink-600">
-              端末内に保存した進行状態と設定を消して、初回状態に戻します。
-            </p>
-            <Button
-              intent="danger"
-              className="mt-4"
-              leadingIcon={<RotateCcwIcon className="h-5 w-5" />}
-              onClick={resetApp}
-            >
-              初期化する
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        title="親だけが見るキジュン"
-        isOpen={activeModal === "secret"}
-        onClose={() => setActiveModal(null)}
-      >
-        <div className="rounded-3xl border-2 border-dashed border-rose-400 bg-rose-100 p-5 text-center text-ink-900">
-          <LockKeyholeIcon className="mx-auto h-8 w-8 text-rose-500" aria-hidden="true" />
-          <p className="mt-3 text-sm font-bold text-rose-500">子に見せないでください</p>
-          <p className="mt-3 font-rounded text-3xl font-extrabold leading-snug text-rose-500">
-            {secretText}
-          </p>
-        </div>
+        <SettingsContent
+          defaultTimerSeconds={state.settings.defaultTimerSeconds}
+          onChangeTimer={(seconds) =>
+            dispatch({ type: "settings/updateTimer", seconds })
+          }
+        />
       </Modal>
 
       <ConfirmDialog
@@ -623,61 +574,57 @@ function Hero({ compact }: { readonly compact: boolean }) {
   );
 }
 
-function SecretHintCard({
-  canReveal,
+function SecretCriterionBanner({
   secretText,
-  onOpen,
-  onClose,
+  isVisible,
+  onToggle,
 }: {
-  readonly canReveal: boolean;
-  readonly secretText: string | null;
-  readonly onOpen: () => void;
-  readonly onClose: () => void;
+  readonly secretText: string;
+  readonly isVisible: boolean;
+  readonly onToggle: () => void;
 }) {
   return (
-    <Card as="aside" tone="secret" aria-label="親だけが見るヒント" className="pt-5">
-      <header className="flex items-start justify-between gap-3">
-        <div>
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-rounded font-extrabold uppercase tracking-[0.16em] text-rose-500">
-            <LockKeyholeIcon className="h-3 w-3" aria-hidden="true" />
-            ヒミツ
+    <section
+      aria-label="親だけが見るヒミツのキジュン"
+      className="relative mb-3 flex items-center gap-3 overflow-hidden rounded-3xl border-2 border-dashed border-rose-400 bg-gradient-to-br from-rose-100 via-cream-100 to-cream-100 px-4 py-3 shadow-card sm:px-5"
+    >
+      <span
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-card"
+        aria-hidden="true"
+      >
+        <LockKeyholeIcon className="h-5 w-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-rounded font-extrabold uppercase tracking-[0.16em] text-rose-500">
+          ヒミツのキジュン・親だけ
+        </p>
+        {isVisible ? (
+          <p className="mt-0.5 break-words font-rounded text-xl font-extrabold leading-snug text-ink-900 sm:text-2xl">
+            {secretText}
           </p>
-          <h2 className="mt-2 font-rounded text-lg font-bold text-ink-900">親だけが見るヒント</h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-ink-600">
-            ヒミツのキジュンは子に見せないでください。
+        ) : (
+          <p
+            className="mt-0.5 font-rounded text-xl font-extrabold leading-snug tracking-[0.35em] text-ink-400 sm:text-2xl"
+            aria-hidden="true"
+          >
+            ••••••
           </p>
-        </div>
-        <EyeOffIcon className="h-6 w-6 shrink-0 text-rose-500" aria-hidden="true" />
-      </header>
-
-      {canReveal ? (
-        <Button
-          intent="secret"
-          size="md"
-          className="mt-4"
-          leadingIcon={<EyeIcon className="h-5 w-5" />}
-          onPointerDown={onOpen}
-          onPointerUp={onClose}
-          onPointerLeave={onClose}
-          onKeyDown={(event) => {
-            if (event.key === " " || event.key === "Enter") {
-              onOpen();
-            }
-          }}
-          onKeyUp={(event) => {
-            if (event.key === " " || event.key === "Enter") {
-              onClose();
-            }
-          }}
-        >
-          押している間だけ確認
-        </Button>
-      ) : (
-        <div className="mt-4 rounded-2xl bg-cream-100 px-4 py-3 text-sm font-bold text-ink-600">
-          {secretText ? "公開フェイズでは全員で見られます。" : "まだキジュンは未選択です。"}
-        </div>
-      )}
-    </Card>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-pressed={isVisible}
+        aria-label={isVisible ? "キジュンを隠す" : "キジュンを表示する"}
+        className="tap-highlight-none flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cream-50 text-rose-500 shadow-card transition active:scale-95 hover:bg-cream-100"
+      >
+        {isVisible ? (
+          <EyeOffIcon className="h-5 w-5" aria-hidden="true" />
+        ) : (
+          <EyeIcon className="h-5 w-5" aria-hidden="true" />
+        )}
+      </button>
+    </section>
   );
 }
 

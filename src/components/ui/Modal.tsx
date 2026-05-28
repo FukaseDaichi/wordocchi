@@ -2,7 +2,7 @@
 
 import { XIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/cn";
@@ -17,6 +17,8 @@ type ModalProps = {
   readonly closeLabel?: string;
 };
 
+const CLOSE_ANIMATION_MS = 260;
+
 export function Modal({
   title,
   isOpen,
@@ -27,9 +29,29 @@ export function Modal({
   closeLabel = "閉じる",
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setIsMounted(true);
+      const id = window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => setIsVisible(true));
+      });
+      return () => window.cancelAnimationFrame(id);
+    }
+
+    if (isMounted) {
+      setIsVisible(false);
+      const timer = window.setTimeout(() => setIsMounted(false), CLOSE_ANIMATION_MS);
+      return () => window.clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [isOpen, isMounted]);
+
+  useEffect(() => {
+    if (!isVisible) {
       return;
     }
 
@@ -43,6 +65,7 @@ export function Modal({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+        return;
       }
 
       if (event.key !== "Tab" || !dialog) {
@@ -79,19 +102,22 @@ export function Modal({
       document.body.style.overflow = "";
       previousActive?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isVisible, onClose]);
 
-  if (!isOpen) {
+  if (!isMounted) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
       <button
         type="button"
         aria-label={closeLabel}
-        className="absolute inset-0 bg-ink-900/40 backdrop-blur-sm"
         onClick={onClose}
+        className={cn(
+          "absolute inset-0 bg-ink-900/45 backdrop-blur-sm transition-opacity duration-200 ease-out motion-reduce:transition-none",
+          isVisible ? "opacity-100" : "opacity-0",
+        )}
       />
       <div
         ref={dialogRef}
@@ -99,7 +125,10 @@ export function Modal({
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          "relative max-h-[85dvh] w-full max-w-screen-sm overflow-y-auto rounded-t-3xl bg-cream-50 p-5 shadow-float sm:rounded-3xl sm:p-6",
+          "relative max-h-[90dvh] w-full max-w-screen-sm overflow-y-auto rounded-t-3xl bg-cream-50 p-5 shadow-float transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none sm:rounded-3xl sm:p-6",
+          isVisible
+            ? "translate-y-0 opacity-100 sm:scale-100"
+            : "translate-y-full opacity-0 sm:translate-y-3 sm:scale-[0.96]",
           className,
         )}
       >

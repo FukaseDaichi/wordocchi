@@ -1,4 +1,4 @@
-import { createInitialState, createRound } from "@/features/round/round-actions";
+import { createRound } from "@/features/round/round-actions";
 import type { Round, RoundAction, RoundState, Settings } from "@/features/round/round-types";
 import { TIMER_OPTIONS_SECONDS } from "@/lib/constants";
 
@@ -30,9 +30,6 @@ export function roundReducer(state: RoundState, action: RoundAction): RoundState
             : state.currentRound,
       };
 
-    case "settings/resetApp":
-      return createInitialState();
-
     case "round/start": {
       const timerSeconds = action.timerSeconds ?? state.settings.defaultTimerSeconds;
       return {
@@ -62,6 +59,9 @@ export function roundReducer(state: RoundState, action: RoundAction): RoundState
           timerStartedAt: null,
         };
       });
+
+    case "round/back":
+      return updateCurrentRound(state, goToPreviousPhase);
 
     case "round/chooseCriterion":
       return updateCurrentRound(state, (round) => {
@@ -179,6 +179,54 @@ export function roundReducer(state: RoundState, action: RoundAction): RoundState
 
     default:
       return state;
+  }
+}
+
+function goToPreviousPhase(round: Round): Round {
+  switch (round.phase) {
+    case "wordPrompt":
+      // 選び直せるようにヒミツのキジュンを未選択へ戻す。
+      return {
+        ...round,
+        phase: "secretSelection",
+        secretCriterion: null,
+      };
+
+    case "timedInvestigation":
+      // ワード提示へ戻し、タイマーは最初からやり直せる状態にする。
+      return {
+        ...round,
+        phase: "wordPrompt",
+        timerStatus: "idle",
+        timerStartedAt: null,
+        timerRemainingSeconds: round.timerSeconds,
+      };
+
+    case "finalGuide":
+      // 調査フェイズへ戻し、タイマーを再開できる状態にする。
+      return {
+        ...round,
+        phase: "timedInvestigation",
+        timerStatus: "idle",
+        timerStartedAt: null,
+        timerRemainingSeconds: round.timerSeconds,
+      };
+
+    case "reveal":
+      // 公開を取り消して決選フェイズへ戻す。
+      return {
+        ...round,
+        phase: "finalGuide",
+        completedAt: null,
+        timerStatus: "finished",
+        timerStartedAt: null,
+      };
+
+    case "secretSelection":
+    case "done":
+    default:
+      // 最初の操作フェイズと終了後は戻れない。
+      return round;
   }
 }
 

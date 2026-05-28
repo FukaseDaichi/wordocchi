@@ -42,11 +42,11 @@ export type RoundAction =
   | { readonly type: "hydrate"; readonly state: RoundState }
   | { readonly type: "settings/markRulesSeen" }
   | { readonly type: "settings/updateTimer"; readonly seconds: number }
-  | { readonly type: "settings/resetApp" }
   | { readonly type: "round/start"; readonly timerSeconds?: number; readonly now?: string }
   | { readonly type: "round/chooseCriterion"; readonly criterionId: string }
   | { readonly type: "round/startInvestigation"; readonly now: string }
   | { readonly type: "round/goFinal"; readonly now: string }
+  | { readonly type: "round/back" }
   | { readonly type: "round/reveal"; readonly now: string }
   | { readonly type: "round/finish"; readonly now: string }
   | { readonly type: "round/abortAndRestart"; readonly timerSeconds?: number; readonly now: string }
