@@ -175,13 +175,13 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
         aria-label={ariaLabel}
         onClick={onToggle}
         className={cn(
-          "tap-highlight-none group relative flex w-full flex-col items-stretch overflow-visible rounded-3xl border-2 px-5 pb-6 pt-5 text-center shadow-pop transition motion-reduce:transition-none",
+          "tap-highlight-none group relative flex w-full flex-col items-stretch overflow-hidden rounded-3xl border-2 px-5 pb-5 pt-9 text-center shadow-pop transition motion-reduce:transition-none",
           tone.border,
           tone.card,
           // 未選択時のホバー
           !isSpoken &&
             "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-card",
-          // 選択中の傾き/光彩
+          // 選択中の光彩
           isSpoken && "ring-4 ring-offset-2 ring-offset-cream-100",
           isSpoken && tone.id === "rose" && "ring-rose-400/40",
           isSpoken && tone.id === "sun" && "ring-sun-400/50",
@@ -207,24 +207,25 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
         <span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute left-4 top-2 h-1.5 w-1.5 rounded-full",
+            "pointer-events-none absolute left-5 top-3 h-1.5 w-1.5 rounded-full",
             tone.punch,
           )}
         />
         <span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute right-4 top-2 h-1.5 w-1.5 rounded-full",
+            "pointer-events-none absolute right-5 top-3 h-1.5 w-1.5 rounded-full",
             tone.punch,
           )}
         />
 
-        {/* 左上: 番号バッジ */}
+        {/* 左上: 番号バッジ(カード内側に収める) */}
         <span
           className={cn(
-            "absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-rounded text-[11px] font-extrabold uppercase tracking-[0.18em] shadow-card",
+            "absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-rounded text-[11px] font-extrabold uppercase tracking-[0.16em] shadow-card transition-opacity motion-reduce:transition-none",
             tone.chip,
             tone.chipText,
+            isSpoken && "opacity-80",
           )}
           aria-hidden="true"
         >
@@ -242,11 +243,11 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
 
         {/* 確定時のスパークル3つ(motion-safe のみ) */}
         {isSpoken ? (
-          <span className="pointer-events-none absolute inset-x-0 top-0 z-10 motion-reduce:hidden">
+          <span className="pointer-events-none absolute inset-x-0 top-1 z-10 motion-reduce:hidden">
             <SparklesIcon
               aria-hidden="true"
               className={cn(
-                "absolute left-[18%] top-2 h-4 w-4 motion-safe:animate-word-sparkle-rise",
+                "absolute left-[22%] top-3 h-4 w-4 motion-safe:animate-word-sparkle-rise",
                 tone.sparkleA,
               )}
             />
@@ -261,7 +262,7 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
             <StarIcon
               aria-hidden="true"
               className={cn(
-                "absolute right-[18%] top-2 h-4 w-4 motion-safe:animate-word-sparkle-rise motion-safe:[animation-delay:240ms]",
+                "absolute right-[22%] top-3 h-4 w-4 motion-safe:animate-word-sparkle-rise motion-safe:[animation-delay:240ms]",
                 tone.sparkleC,
               )}
               fill="currentColor"
@@ -269,12 +270,12 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
           </span>
         ) : null}
 
-        {/* 右上: 「伝えた」リボン */}
+        {/* 右上: 「伝えた」リボン(カード内側に収める) */}
         {isSpoken ? (
           <span
             aria-hidden="true"
             className={cn(
-              "pointer-events-none absolute -right-2 -top-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-rounded text-[11px] font-extrabold uppercase tracking-[0.16em] shadow-card motion-safe:animate-word-ribbon-drop",
+              "pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-rounded text-[11px] font-extrabold uppercase tracking-[0.16em] shadow-card motion-safe:animate-word-ribbon-drop",
               tone.ribbon,
             )}
           >
@@ -283,20 +284,34 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
           </span>
         ) : null}
 
-        {/* 本文 */}
+        {/* 本文(読み上げる言葉) */}
         <p
           className={cn(
-            "mt-3 break-words font-rounded text-2xl font-extrabold leading-snug text-ink-900 sm:text-[1.6rem]",
-            isSpoken && "text-ink-900",
+            "relative mt-3 break-words font-rounded text-2xl font-extrabold leading-snug text-ink-900 sm:text-[1.6rem]",
           )}
         >
           {word.text}
         </p>
 
+        {/* 吹き出しのしっぽ(下中央・カード内側に収める) */}
+        <span
+          aria-hidden="true"
+          className="relative mt-2 inline-flex items-center justify-center self-center"
+        >
+          <svg viewBox="0 0 24 18" className="h-3 w-5">
+            <path
+              d="M2 1 L22 1 L13 15 Q12 17 11 15 Z"
+              className={cn(tone.tailFill, tone.tailStroke)}
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+
         {/* 下部ヒント / 状態テキスト */}
         <p
           className={cn(
-            "mt-3 inline-flex items-center justify-center gap-1 text-[11px] font-bold leading-tight",
+            "relative mt-2 inline-flex items-center justify-center gap-1 self-center text-[11px] font-bold leading-tight",
             isSpoken ? tone.accent : "text-ink-400",
           )}
         >
@@ -312,23 +327,6 @@ function WordCard({ tone, index, word, isSpoken, onToggle }: WordCardProps) {
             </>
           )}
         </p>
-
-        {/* 吹き出しのしっぽ(下中央) */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 18"
-          className={cn(
-            "pointer-events-none absolute -bottom-[14px] left-1/2 h-[18px] w-6 -translate-x-1/2 drop-shadow-[0_2px_0_rgba(110,80,40,0.06)]",
-          )}
-        >
-          {/* しっぽ本体 */}
-          <path
-            d="M2 1 L22 1 L13 15 Q12 17 11 15 Z"
-            className={cn(tone.tailFill, tone.tailStroke)}
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-        </svg>
       </button>
     </li>
   );
@@ -344,7 +342,7 @@ function ProgressHint({
   const remaining = Math.max(total - spokenCount, 0);
   const message =
     spokenCount === 0
-      ? "順番にカードを読みあげて、伝えたらタップしてしるしをつけよう。"
+      ? "順番にカードを読みあげて、伝えたカードをタップしてしるしをつけよう。"
       : remaining > 0
         ? `あと ${remaining} つ、子に伝えてね。`
         : "ぜんぶ伝えたよ。下の「進む」でタイマーへ。";
